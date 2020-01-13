@@ -22,7 +22,7 @@ function varargout = guide(varargin)
 
 % Edit the above text to modify the response to help guide
 
-% Last Modified by GUIDE v2.5 06-Jan-2020 22:03:09
+% Last Modified by GUIDE v2.5 13-Jan-2020 14:34:13
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -79,7 +79,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global S;
-[fileName, path] = uigetfile({'*.jpg'; '*.png'; '*.*'}, 'File Selector');
+[fileName, path] = uigetfile({'*.jpg;*.png;','Imges (*.jpg,*.png)'; '*.*',  'All Files (*.*)'}, 'File Selector');
 fullPath = strcat(path, fileName);
 S = imread(fullPath);
 axes(handles.axes1);
@@ -93,7 +93,7 @@ function pushbutton4_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global T;
-[fileName, path] = uigetfile({'*.jpg'; '*.png'; '*.*'}, 'File Selector');
+[fileName, path] = uigetfile({'*.jpg;*.png;','Imges (*.jpg,*.png)'; '*.*',  'All Files (*.*)'}, 'File Selector');
 fullPath = strcat(path, fileName);
 T = imread(fullPath);
 axes(handles.axes2);
@@ -130,13 +130,41 @@ function pushbutton5_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global S;
 global T;
+
+S = imresize(S, [500, 500]);
+T = imresize(T, [500,500]);
+
 k=rgb2gray(S);
 levelS = graythresh(S);
 k=im2bw(S, levelS);
+% k = edge(k, 'Canny');
+% [dongk, cotk] = size(k);
+% for i=1:dongk
+%     for j=1:cotk
+%         if k(i,j) == 1
+%             k(i,j) = 0;
+%         else k(i,j) = 1;
+%         end
+%     end
+% end
+
+
 
 p=rgb2gray(T);
 levelT = graythresh(T);
 p=im2bw(T, levelT);
+% p = edge(p, 'Canny');
+% [dongp, cotp] = size(p);
+% for i=1:dongp
+%     for j=1:cotp
+%         if p(i,j) == 1
+%             p(i,j) = 0;
+%         else p(i,j) = 1;
+%         end
+%     end
+% end
+
+
 
 edge_det_k = k;
 edge_det_p = p;
@@ -148,20 +176,8 @@ OUTPUT_MESSAGE3 = 'Khoâng gioáng';
 
 % edge_det_k = edge(k,'Canny');
 % edge_det_p = edge(p,'Canny');
-[rowk colk] = size(edge_det_k);
+[dong cot] = size(edge_det_k);
 [rowp colp] = size(edge_det_p);
-
-dong = uint32(0);
-if rowk < rowp
-    dong = rowk;
-else dong = rowp;
-end
-
-cot = uint32(0);
-if colk < colp
-    cot = colk;
-else cot = colp;
-end
 
 matched_data = 0;
 white_points = 0;
@@ -187,7 +203,8 @@ for i = 1:1:dong
         end
     end
 end
-    
+fprintf('\n %d \n %d \n %d', white_points, black_points, matched_data);
+
 %calculating percentage matching.
 total_data = white_points;
 total_matched_percentage = (matched_data/total_data)*100;
